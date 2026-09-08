@@ -33,10 +33,9 @@ const Part = ({part}) => {
 }
 
 const Total = ({parts}) => {
-  let total = 0
-  for (let index = 0; index < parts.length; index++) {
-    total += parts[index].exercises
-  }
+  let total = parts.reduce(
+    (total, object) => total + object.exercises, 0
+  )
 
   return(
     <p><strong>Number of exercises {total}</strong></p>
