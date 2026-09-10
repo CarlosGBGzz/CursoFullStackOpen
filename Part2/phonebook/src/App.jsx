@@ -20,9 +20,13 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault()
-    let personObject = {name : newName }
-    setPersons(persons.concat(personObject))
-    setNewName('')
+    if (persons.some( person => person.name.toLowerCase() === newName.toLocaleLowerCase())) {
+      alert(`${newName} is already added to phonebook`)
+    } else {
+      let personObject = {name : newName }
+      setPersons(persons.concat(personObject))
+      setNewName('')
+    }
   }
 
   return (
