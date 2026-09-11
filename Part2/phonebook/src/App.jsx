@@ -1,12 +1,19 @@
 import { useState } from 'react'
 
-const Numbers = ({numbers}) => (
-  <>
-    {numbers.map(number => 
-      <p key={number.id}>{number.name}: {number.number}</p>
-    )}
-  </>
-)
+const Numbers = ({numbers, filter}) => {
+
+  const personsToShow = numbers.filter(person => 
+    person.name.toLowerCase().includes(filter.toLowerCase())
+  )
+
+  return (
+    <>
+      {personsToShow.map(number => 
+        <p key={number.id}>{number.name}: {number.number}</p>
+      )}
+    </>
+  )
+}
 
 const App = () => {
   const [persons, setPersons] = useState([
@@ -17,6 +24,7 @@ const App = () => {
   ]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
+  const [filter, setFilter] = useState('')
 
   const handleNameChange = (event) => {
     setNewName(event.target.value)
@@ -24,10 +32,11 @@ const App = () => {
   const handleNumberChange = (event) => {
     setNewNumber(event.target.value)
   }
+  const handleFilter = (event) => setFilter(event.target.value)
 
   const addPerson = (event) => {
     event.preventDefault()
-    if (persons.some( person => person.name.toLowerCase() === newName.toLocaleLowerCase())) {
+    if (persons.some( person => person.name.toLowerCase() === newName.toLowerCase())) {
       alert(`${newName} is already added to phonebook`)
     } else {
       let personObject = {
@@ -42,7 +51,10 @@ const App = () => {
 
   return (
     <div>
-      <h2>Phonebook</h2>
+      <h1>Phonebook</h1>
+      <p>Filter shown with <input value={filter} onChange={handleFilter}/></p>
+
+      <h2>add a new</h2>
       <form onSubmit={addPerson}>
         <div>
           <p>name: <input value={newName} onChange={handleNameChange}/></p>
@@ -53,7 +65,7 @@ const App = () => {
         </div>
       </form>
       <h2>Numbers</h2>
-      <Numbers numbers={persons} />
+      <Numbers numbers={persons} filter={filter}/>
     </div>
   )
 }
