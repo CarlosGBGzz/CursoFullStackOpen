@@ -1,5 +1,6 @@
 import { useState, useEffect} from 'react'
 import axios from 'axios' 
+import { Axios } from 'axios'
 
 const Filter = ({filter,handleFilter}) => {
   return (
@@ -68,10 +69,15 @@ const App = () => {
       let personObject = {
         name : newName,
         number : newNumber,
-        id: crypto.randomUUID()}
-      setPersons(persons.concat(personObject))
-      setNewName('')
-      setNewNumber('')
+        id: crypto.randomUUID()
+      }
+      axios
+        .post('http://localhost:3001/persons', personObject)
+        .then(response => {
+          setPersons(persons.concat(response.data))
+          setNewName('')
+          setNewNumber('')
+        })
     }
   }
 
