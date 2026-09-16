@@ -1,6 +1,7 @@
 import { useState, useEffect} from 'react'
 import axios from 'axios' 
 import personService from './services/person'
+import person from './services/person'
 
 const Filter = ({filter,handleFilter}) => {
   return (
@@ -24,7 +25,7 @@ const PersonForm = ({newName, handleNameChange, newNumber, handleNumberChange, a
   )
 }
 
-const Persons = ({persons, filter}) => {
+const Persons = ({persons, filter, deletePersons}) => {
 
   const personsToShow = persons.filter(person => 
     person.name.toLowerCase().includes(filter.toLowerCase())
@@ -33,7 +34,7 @@ const Persons = ({persons, filter}) => {
   return (
     <>
       {personsToShow.map(number => 
-        <p key={number.id}>{number.name}: {number.number}</p>
+        <p key={number.id}>{number.name}: {number.number} <button id={number.id} onClick={deletePersons}>delete</button></p>
       )}
     </>
   )
@@ -71,13 +72,26 @@ const App = () => {
         number : newNumber,
         id: crypto.randomUUID()
       }
-      axios
-        .post('http://localhost:3001/persons', personObject)
+      personService
+        .postPerson(personObject)
         .then(response => {
-          setPersons(persons.concat(response.data))
+          setPersons(persons.concat(response))
           setNewName('')
           setNewNumber('')
-        })
+      })
+    }
+  }
+
+  const deletePersons = (event) => {
+    const id = event.target.id
+    const personObject = persons.find(person => person.id === id)
+
+    if (window.confirm(`Do you want to delete ${personObject.name}`)) {
+      personService
+        .deletePerson(id)
+        .then(response => {
+          setPersons(persons.filter( person => person.id !== id))
+      })
     }
   }
 
@@ -95,7 +109,11 @@ const App = () => {
         addPerson={addPerson}
       />
       <h2>Numbers</h2>
-      <Persons persons={persons} filter={filter}/>
+
+      <Persons 
+        persons={persons} 
+        filter={filter} 
+        deletePersons={deletePersons}/>
     </div>
   )
 }
