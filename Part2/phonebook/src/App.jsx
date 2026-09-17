@@ -23,6 +23,20 @@ const PersonForm = ({newName, handleNameChange, newNumber, handleNumberChange, a
   )
 }
 
+const Message = ({operationMessage, type}) => {
+  if (operationMessage === null) {
+    return
+  }
+
+  //type 0= error   1= success
+
+  if (type == 0) {
+    return (<div className='errorMessage'>{operationMessage}</div>)
+  } else {
+    return (<div className='successMessage'>{operationMessage}</div>)
+  }
+}
+
 const Persons = ({persons, filter, deletePersons}) => {
 
   const personsToShow = persons.filter(person => 
@@ -43,6 +57,8 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
+  const [operationMessage, setOperationMessage] = useState(null)
+  let type = 1
 
   useEffect(() => {
     personService
@@ -79,7 +95,10 @@ const App = () => {
           setPersons(persons.concat(response))
           setNewName('')
           setNewNumber('')
-      })
+          type = 1
+          setOperationMessage(`added ${response.name}`)
+          setTimeout(() => setOperationMessage(null), 5000)
+        })
     }
   }
 
@@ -94,6 +113,15 @@ const App = () => {
       .updatePerson(changedPersonObject)
         .then(data => {
           setPersons( persons.map(person => person.id === data.id ? data : person))
+          type = 1
+          setOperationMessage(`updated ${data.name}`)
+          setTimeout(() => setOperationMessage(null), 5000)
+        })
+        .catch(error => {
+          type = 0
+          setOperationMessage(`Error ${changedPersonObject.name} was already removed from server`)
+          setPersons( persons.filter( person => person.id !== changedPersonObject.id))
+          setTimeout(() => setOperationMessage(null), 5000)
         })
   }
 
@@ -104,8 +132,11 @@ const App = () => {
     if (window.confirm(`Do you want to delete ${personObject.name}`)) {
       personService
         .deletePerson(id)
-        .then(response => {
+        .then(data => {
           setPersons(persons.filter( person => person.id !== id))
+          type = 1
+          setOperationMessage(`Eliminated successfully`)
+          setTimeout(() => setOperationMessage(null), 5000)
       })
     }
   }
@@ -115,6 +146,7 @@ const App = () => {
       <h1>Phonebook</h1>
       <Filter filter={filter} handleFilter={handleFilter}/>
 
+      <Message operationMessage={operationMessage} type={type}/>
       <h2>add a new</h2>
       <PersonForm
         newName={newName}
