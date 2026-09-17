@@ -1,7 +1,5 @@
 import { useState, useEffect} from 'react'
-import axios from 'axios' 
 import personService from './services/person'
-import person from './services/person'
 
 const Filter = ({filter,handleFilter}) => {
   return (
@@ -33,8 +31,8 @@ const Persons = ({persons, filter, deletePersons}) => {
 
   return (
     <>
-      {personsToShow.map(number => 
-        <p key={number.id}>{number.name}: {number.number} <button id={number.id} onClick={deletePersons}>delete</button></p>
+      {personsToShow.map(person => 
+        <p key={person.id}>{person.name}: {person.number} <button id={person.id} onClick={deletePersons}>delete</button></p>
       )}
     </>
   )
@@ -66,6 +64,9 @@ const App = () => {
     event.preventDefault()
     if (persons.some( person => person.name.toLowerCase() === newName.toLowerCase())) {
       alert(`${newName} is already added to phonebook`)
+      if (window.confirm("Do you want to change the phone?")) {
+        changePhone()
+      }
     } else {
       let personObject = {
         name : newName,
@@ -80,6 +81,20 @@ const App = () => {
           setNewNumber('')
       })
     }
+  }
+
+  const changePhone = () => {
+    const personObject = persons.find(person => person.name.toLowerCase() === newName.toLowerCase())
+    const changedPersonObject = {
+      ...personObject, 
+      number: newNumber
+    }
+
+    personService
+      .updatePerson(changedPersonObject)
+        .then(data => {
+          setPersons( persons.map(person => person.id === data.id ? data : person))
+        })
   }
 
   const deletePersons = (event) => {
