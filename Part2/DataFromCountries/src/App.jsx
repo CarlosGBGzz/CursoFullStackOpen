@@ -1,7 +1,7 @@
 import axios from "axios"
 import { useState , useEffect } from "react"
 
-const Filter = ({countries , search}) => {
+const Filter = ({countries , search, showCountry}) => {
   const countriesFiltred = countries.filter((country) => country.name.common.toLowerCase().includes(search.toLowerCase()))
 
   if (countriesFiltred.length === 1) {
@@ -14,7 +14,10 @@ const Filter = ({countries , search}) => {
     return (
       <>
         {countriesFiltred.map(country =>
-          <p key={country.ccn3}>{country.name.common}</p>
+          <div key={country.ccn3}>
+            <p>{country.name.common} <button onClick={() => showCountry(country.name.common)}>Show</button></p>
+            
+          </div>
         )}
       </>
     )
@@ -36,7 +39,7 @@ const ShowCountrySelected = ({country}) => {
       <h2>Languages</h2>
       <ul>
         {Object.entries(country.languages).map(([code , language]) => 
-          <li>
+          <li key={code}>
             <p><strong>{code}:</strong>  {language}</p>
           </li>
         )}
@@ -60,10 +63,14 @@ const App = () => {
   },[])
 
   const handleSearch = (event) => setSearch(event.target.value)
+  const showCountry = (name) => {
+    setSearch(name)
+  }
+
   return (
     <>
       <p>find countries <input type="text" value={search} onChange={handleSearch}/></p>
-      <Filter countries={countries} search={search}/>
+      <Filter countries={countries} search={search} showCountry={showCountry}/>
     </>
   )
 }
