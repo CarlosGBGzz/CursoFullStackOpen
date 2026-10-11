@@ -1,0 +1,156 @@
+import express, { request, response } from "express"
+const app = express()
+
+const persons = [
+    {
+      "name": "Arto Hellas",
+      "number": "123",
+      "id": "1"
+    },
+    {
+      "name": "Ada Lovelace",
+      "number": "39-44-5323523",
+      "id": "2"
+    },
+    {
+      "name": "Dan Abramov",
+      "number": "12-43-234345",
+      "id": "3"
+    },
+    {
+      "name": "Mary Poppendieck",
+      "number": "39-23-6423122",
+      "id": "4"
+    },
+    {
+      "name": "Hector",
+      "number": "1234567890",
+      "id": "5"
+    },
+    {
+      "name": "Carlos Rodriguez",
+      "number": "81-1234-5678",
+      "id": "6"
+    },
+    {
+      "name": "Michael Johnson",
+      "number": "212-555-0147",
+      "id": "8"
+    },
+    {
+      "name": "Emma Williams",
+      "number": "415-555-0182",
+      "id": "9"
+    },
+    {
+      "name": "Luis Hernandez",
+      "number": "55-1234-5678",
+      "id": "10"
+    },
+    {
+      "name": "Olivia Brown",
+      "number": "312-555-0193",
+      "id": "11"
+    },
+    {
+      "name": "James Anderson",
+      "number": "617-555-0134",
+      "id": "12"
+    },
+    {
+      "name": "Isabella Garcia",
+      "number": "81-3456-7890",
+      "id": "13"
+    },
+    {
+      "name": "Daniel Thompson",
+      "number": "206-555-0176",
+      "id": "14"
+    },
+    {
+      "name": "Sophia Wilson",
+      "number": "305-555-0128",
+      "id": "15"
+    },
+    {
+      "name": "Mateo Gonzalez",
+      "number": "33-1234-5678",
+      "id": "16"
+    },
+    {
+      "name": "Charlotte Davis",
+      "number": "718-555-0165",
+      "id": "17"
+    },
+    {
+      "name": "Alejandro Torres",
+      "number": "81-4567-8901",
+      "id": "18"
+    },
+    {
+      "name": "Emily Taylor",
+      "number": "415-555-0119",
+      "id": "19"
+    },
+    {
+      "name": "Robert Moore",
+      "number": "214-555-0157",
+      "id": "20"
+    },
+    {
+      "name": "Valentina Lopez",
+      "number": "81-5678-9012",
+      "id": "21"
+    },
+    {
+      "name": "William Jackson",
+      "number": "212-555-0198",
+      "id": "22"
+    },
+    {
+      "name": "Camila Ramirez",
+      "number": "55-2345-6789",
+      "id": "23"
+    },
+    {
+      "name": "Benjamin Martin",
+      "number": "713-555-0142",
+      "id": "24"
+    },
+    {
+      "name": "pepe",
+      "number": "1123",
+      "id": "F8i308FlcQw"
+    }
+]
+
+app.get("/" , (request, response) => {
+  response.send('<h1>Hello World </h1>')
+})
+
+app.get("/info", (request, response) => {
+  const date = new Date()
+  response.send(`
+    <p>Phonebook has info for ${persons.length} people</p>
+    <p>${date}</p>
+    `)
+})
+
+app.get("/api/persons", (request, response) => {
+  response.json(persons)
+})
+
+app.get("/api/persons/:id", (request, response) => {
+  const id = request.params.id
+  const person = persons.find(person => person.id === id)
+  if (person) {
+    response.json(person)
+  } else {
+    response.status(404).end()
+  }
+})
+
+const PORT = 3001
+app.listen(PORT, () => {
+    console.log(`server running on port ${PORT}`)
+})
