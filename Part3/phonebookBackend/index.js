@@ -121,6 +121,11 @@ const persons = [
       "name": "pepe",
       "number": "1123",
       "id": "F8i308FlcQw"
+    },
+    {
+      "name": "Elpepe",
+      "number": "1123",
+      "id": "F8i328FlcQw"
     }
 ]
 
@@ -143,11 +148,24 @@ app.get("/api/persons", (request, response) => {
 app.get("/api/persons/:id", (request, response) => {
   const id = request.params.id
   const person = persons.find(person => person.id === id)
+
   if (person) {
     response.json(person)
   } else {
     response.status(404).end()
   }
+})
+
+app.delete("/api/persons/:id", (request, response) => {
+  const id = request.params.id
+  const index = persons.findIndex(person => person.id === id)
+  
+  if(index === -1) {
+    response.status(404).json({error: "person not found"})
+  }
+
+  persons.splice(index,1)
+  response.status(204).end()
 })
 
 const PORT = 3001
