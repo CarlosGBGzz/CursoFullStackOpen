@@ -1,6 +1,7 @@
 import express, { request, response } from "express"
 const app = express()
 
+app.use(express.json())
 const persons = [
     {
       "name": "Arto Hellas",
@@ -161,11 +162,24 @@ app.delete("/api/persons/:id", (request, response) => {
   const index = persons.findIndex(person => person.id === id)
   
   if(index === -1) {
-    response.status(404).json({error: "person not found"})
+    return response.status(404).json({error: "person not found"})
   }
 
   persons.splice(index,1)
   response.status(204).end()
+})
+
+app.post("/api/persons", (request, response) => {
+  const body = request.body
+
+  const person = {
+    name: body.name,
+    number: body.number,
+    id: crypto.randomUUID()
+  }
+
+  persons.push(person)
+  response.json(person)
 })
 
 const PORT = 3001
