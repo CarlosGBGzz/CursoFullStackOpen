@@ -1,0 +1,19 @@
+.successMessage {
+  color: rgb(15, 116, 23);
+  background: rgb(190, 190, 190);
+  font-size: 20px;
+  border-style: solid;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.errorMessage {
+  color: rgb(133, 3, 3);
+  background: rgb(190, 190, 190);
+  font-size: 20px;
+  border-style: solid;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+}

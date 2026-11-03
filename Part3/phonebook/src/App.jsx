@@ -1,0 +1,168 @@
+import { useState, useEffect} from 'react'
+import personService from './services/person'
+
+const Filter = ({filter,handleFilter}) => {
+  return (
+      <p>Filter shown with <input value={filter} onChange={handleFilter}/></p>
+  )
+}
+
+const PersonForm = ({newName, handleNameChange, newNumber, handleNumberChange, addPerson}) => {
+
+
+  return (
+    <form onSubmit={addPerson}>
+      <div>
+        <p>name: <input value={newName} onChange={handleNameChange}/></p>
+        <p>number: <input value={newNumber} onChange={handleNumberChange}/></p>
+      </div>
+      <div>
+        <button type="submit">add</button>
+      </div>
+    </form>
+  )
+}
+
+const Message = ({operationMessage, type}) => {
+  if (operationMessage === null) {
+    return
+  }
+
+  //type 0= error   1= success
+
+  if (type == 0) {
+    return (<div className='errorMessage'>{operationMessage}</div>)
+  } else {
+    return (<div className='successMessage'>{operationMessage}</div>)
+  }
+}
+
+const Persons = ({persons, filter, deletePersons}) => {
+
+  const personsToShow = persons.filter(person => 
+    person.name.toLowerCase().includes(filter.toLowerCase())
+  )
+
+  return (
+    <>
+      {personsToShow.map(person => 
+        <p key={person.id}>{person.name}: {person.number} <button id={person.id} onClick={deletePersons}>delete</button></p>
+      )}
+    </>
+  )
+}
+
+const App = () => {
+  const [persons, setPersons] = useState([]) 
+  const [newName, setNewName] = useState('')
+  const [newNumber, setNewNumber] = useState('')
+  const [filter, setFilter] = useState('')
+  const [operationMessage, setOperationMessage] = useState(null)
+  let type = 1
+
+  useEffect(() => {
+    personService
+      .getAll()
+      .then(response => {
+        setPersons(response)
+      })
+  },[])
+
+  const handleNameChange = (event) => {
+    setNewName(event.target.value)
+  }
+  const handleNumberChange = (event) => {
+    setNewNumber(event.target.value)
+  }
+  const handleFilter = (event) => setFilter(event.target.value)
+
+  const addPerson = (event) => {
+    event.preventDefault()
+    if (persons.some( person => person.name.toLowerCase() === newName.toLowerCase())) {
+      alert(`${newName} is already added to phonebook`)
+      if (window.confirm("Do you want to change the phone?")) {
+        changePhone()
+      }
+    } else {
+      let personObject = {
+        name : newName,
+        number : newNumber,
+        id: crypto.randomUUID()
+      }
+      personService
+        .postPerson(personObject)
+        .then(response => {
+          setPersons(persons.concat(response))
+          setNewName('')
+          setNewNumber('')
+          type = 1
+          setOperationMessage(`added ${response.name}`)
+          setTimeout(() => setOperationMessage(null), 5000)
+        })
+    }
+  }
+
+  const changePhone = () => {
+    const personObject = persons.find(person => person.name.toLowerCase() === newName.toLowerCase())
+    const changedPersonObject = {
+      ...personObject, 
+      number: newNumber
+    }
+
+    personService
+      .updatePerson(changedPersonObject)
+        .then(data => {
+          setPersons( persons.map(person => person.id === data.id ? data : person))
+          type = 1
+          setOperationMessage(`updated ${data.name}`)
+          setTimeout(() => setOperationMessage(null), 5000)
+        })
+        .catch(error => {
+          type = 0
+          setOperationMessage(`Error ${changedPersonObject.name} was already removed from server`)
+          setPersons( persons.filter( person => person.id !== changedPersonObject.id))
+          setTimeout(() => setOperationMessage(null), 5000)
+        })
+  }
+
+  const deletePersons = (event) => {
+    const id = event.target.id
+    const personObject = persons.find(person => person.id === id)
+
+    if (window.confirm(`Do you want to delete ${personObject.name}`)) {
+      personService
+        .deletePerson(id)
+        .then(data => {
+          setPersons(persons.filter( person => person.id !== id))
+          type = 1
+          setOperationMessage(`Eliminated successfully`)
+          setTimeout(() => setOperationMessage(null), 5000)
+      })
+    }
+  }
+
+  return (
+    <div>
+      <h1>Phonebook</h1>
+      <Filter filter={filter} handleFilter={handleFilter}/>
+
+      <Message operationMessage={operationMessage} type={type}/>
+      <h2>add a new</h2>
+      <PersonForm
+        newName={newName}
+        handleNameChange={handleNameChange}
+        newNumber={newNumber}
+        handleNumberChange={handleNumberChange}
+        addPerson={addPerson}
+      />
+      <h2>Numbers</h2>
+
+      <Persons 
+        persons={persons} 
+        filter={filter} 
+        deletePersons={deletePersons}/>
+    </div>
+  )
+}
+
+export default App
