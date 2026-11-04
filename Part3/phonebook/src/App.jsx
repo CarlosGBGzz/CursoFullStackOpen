@@ -86,8 +86,7 @@ const App = () => {
     } else {
       let personObject = {
         name : newName,
-        number : newNumber,
-        id: crypto.randomUUID()
+        number : newNumber
       }
       personService
         .postPerson(personObject)
