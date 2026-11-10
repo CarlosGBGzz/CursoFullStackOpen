@@ -35,6 +35,10 @@ app.get("/api/persons", (request, response) => {
     .then(person => {
       response.json(person)
     })
+    .catch(error => {
+      console.error('Error conecting to database', error.message)
+      response.status(500).json({ error : 'Error conecting to database'})
+    })
 })
 
  /*Not working yet
@@ -61,6 +65,7 @@ app.delete("/api/persons/:id", (request, response) => {
   persons.splice(index,1)
   response.status(204).end()
 })
+*/
 
 app.post("/api/persons", (request, response) => {
   const body = request.body
@@ -69,20 +74,21 @@ app.post("/api/persons", (request, response) => {
     return response.status(400).json({error: "name or number is missing"})
   }
 
-  if (persons.some(person => person.name === body.name)) {
-    return response.status(400).json({error: "name must be unique"})
-  }
-
-  const person = {
+  const person = new Person({
     name: body.name,
-    number: body.number,
-    id: crypto.randomUUID()
-  }
+    number: body.number
+  })
 
-  persons.push(person)
-  response.json(person)
+  person.save()
+    .then(personSaved => {
+      response.json(personSaved)
+    })
+    .catch(error => {
+      console.error('Error saving to DB', error.message)
+      response.status(500).json({ error : "Error saving to DB"})
+    })
 })
-*/
+
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
