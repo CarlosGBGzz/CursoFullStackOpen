@@ -37,18 +37,22 @@ app.get("/api/persons", (request, response, next) => {
     .catch(error => next(error))
 })
 
- /*Not working yet
-app.get("/api/persons/:id", (request, response) => {
-  const id = request.params.id
-  const person = persons.find(person => person.id === id)
 
-  if (person) {
-    response.json(person)
-  } else {
-    response.status(404).end()
-  }
+app.get("/api/persons/:id", (request, response, next) => {
+  const id = request.params.id
+  Person.findById(id)
+    .then(person => {
+      if (person) {
+        response.json(person)
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => next(error))
+
+
 })
-*/
+
 
 app.delete("/api/persons/:id", (request, response, next) => {
   const id = request.params.id
@@ -93,7 +97,6 @@ app.put("/api/persons/:id", (request, response, next) => {
       response.json(updatedPerson)
     })
     .catch(error => next(error))
-
 })
 
 const errorHandler = (error, request, response, next) => {
