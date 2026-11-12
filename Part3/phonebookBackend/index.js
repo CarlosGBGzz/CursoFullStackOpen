@@ -17,7 +17,7 @@ morgan.token('body', (request, response) => {
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
-app.get("/info", (request, response) => {
+app.get("/info", (request, response, next) => {
   Person.countDocuments({})
     .then(count => {
         const date = new Date()
@@ -26,21 +26,15 @@ app.get("/info", (request, response) => {
           <p>${date}</p>
         `)
     })
-    .catch(error => {
-      console.error('Error conecting to database', error.message)
-      response.status(500).json({ error : 'Error conecting to database'})
-    })
+    .catch(error => next(error))
 })
 
-app.get("/api/persons", (request, response) => {
+app.get("/api/persons", (request, response, next) => {
   Person.find({})
     .then(person => {
       response.json(person)
     })
-    .catch(error => {
-      console.error('Error conecting to database', error.message)
-      response.status(500).json({ error : 'Error conecting to database'})
-    })
+    .catch(error => next(error))
 })
 
  /*Not working yet
@@ -56,20 +50,17 @@ app.get("/api/persons/:id", (request, response) => {
 })
 */
 
-app.delete("/api/persons/:id", (request, response) => {
+app.delete("/api/persons/:id", (request, response, next) => {
   const id = request.params.id
   Person.findByIdAndDelete(id)
     .then(result => {
       response.status(204).end()
     })
-    .catch(error => {
-      console.error('Error conecting to database', error.message)
-      response.status(500).json({ error : 'Error conecting to database'})
-    })
+    .catch(error => next(error))
 })
 
 
-app.post("/api/persons", (request, response) => {
+app.post("/api/persons", (request, response, next) => {
   const body = request.body
 
   if (!body.name || !body.number) {
@@ -85,12 +76,30 @@ app.post("/api/persons", (request, response) => {
     .then(personSaved => {
       response.json(personSaved)
     })
-    .catch(error => {
-      console.error('Error saving to DB', error.message)
-      response.status(500).json({ error : "Error saving to DB"})
-    })
+    .catch(error => next(error))
 })
 
+const errorHandler = (error, request, response, next) => {
+  console.error(error.name)
+
+  if (error.name === "CastError") {
+    console.error("malformatted id")
+    return response.status(400).json({error : "malformatted id"})
+  }
+
+  if (error.name=== "ValidationError") {
+    return response.status(400).json({error : error.message})
+  }
+
+  if (err.name === 'SyntaxError' && err.status === 400) {
+    return response.status(400).json({error : error.message})
+  }
+
+  console.error(error.message)
+  return response.status(500).json({error : "error not configured"})
+}
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
