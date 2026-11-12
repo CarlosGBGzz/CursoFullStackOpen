@@ -54,20 +54,20 @@ app.get("/api/persons/:id", (request, response) => {
     response.status(404).end()
   }
 })
-
+*/
 
 app.delete("/api/persons/:id", (request, response) => {
   const id = request.params.id
-  const index = persons.findIndex(person => person.id === id)
-  
-  if(index === -1) {
-    return response.status(404).json({error: "person not found"})
-  }
-
-  persons.splice(index,1)
-  response.status(204).end()
+  Person.findByIdAndDelete(id)
+    .then(result => {
+      response.status(204).end()
+    })
+    .catch(error => {
+      console.error('Error conecting to database', error.message)
+      response.status(500).json({ error : 'Error conecting to database'})
+    })
 })
-*/
+
 
 app.post("/api/persons", (request, response) => {
   const body = request.body
