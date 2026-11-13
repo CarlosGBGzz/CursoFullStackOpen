@@ -30,7 +30,7 @@ const Message = ({operationMessage, type}) => {
 
   //type 0= error   1= success
 
-  if (type == 0) {
+  if (type === 0) {
     return (<div className='errorMessage'>{operationMessage}</div>)
   } else {
     return (<div className='successMessage'>{operationMessage}</div>)
@@ -58,7 +58,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
   const [operationMessage, setOperationMessage] = useState(null)
-  let type = 1
+  const [type, setType]= useState(1)
 
   useEffect(() => {
     personService
@@ -94,8 +94,17 @@ const App = () => {
           setPersons(persons.concat(response))
           setNewName('')
           setNewNumber('')
-          type = 1
+          setType(1)
           setOperationMessage(`added ${response.name}`)
+          setTimeout(() => setOperationMessage(null), 5000)
+        })
+        .catch(error => {
+          const errorMessage = error.response?.data?.error
+
+          setNewName('')
+          setNewNumber('')
+          setType(0)
+          setOperationMessage(errorMessage)
           setTimeout(() => setOperationMessage(null), 5000)
         })
     }
@@ -112,12 +121,12 @@ const App = () => {
       .updatePerson(changedPersonObject)
         .then(data => {
           setPersons( persons.map(person => person.id === data.id ? data : person))
-          type = 1
+          setType(1)
           setOperationMessage(`updated ${data.name}`)
           setTimeout(() => setOperationMessage(null), 5000)
         })
         .catch(error => {
-          type = 0
+          setType(0)
           setOperationMessage(`Error ${changedPersonObject.name} was already removed from server`)
           setPersons( persons.filter( person => person.id !== changedPersonObject.id))
           setTimeout(() => setOperationMessage(null), 5000)
@@ -133,7 +142,7 @@ const App = () => {
         .deletePerson(id)
         .then(data => {
           setPersons(persons.filter( person => person.id !== id))
-          type = 1
+          setType(1)
           setOperationMessage(`Eliminated successfully`)
           setTimeout(() => setOperationMessage(null), 5000)
       })
